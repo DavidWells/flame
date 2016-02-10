@@ -1,7 +1,9 @@
 import 'babel-register';
 
 import Immutable from 'immutable';
+
 import test from 'ava';
+import sinon from 'sinon';
 
 import App from '../src/app';
 import TestStore from './helpers/test-store';
@@ -54,6 +56,15 @@ test('_setStoreState sets state', t => {
   t.ok(Immutable.is(storeState, Immutable.fromJS(['new-item'])));
 });
 
+test('_setStoreState throws error when it lacks a store', t => {
+  const app = new App('test', [TestStore]);
+
+  t.plan(1);
+
+  app._setStoreState('test', Immutable.fromJS(['new-item']));
+  t.throws(() => app._getStoreState('not-in-there'));
+});
+
 test('_setStoreState calls subscribed callbacks', t => {
   const app = new App('test', [
     TestStore,
@@ -68,6 +79,29 @@ test('_setStoreState calls subscribed callbacks', t => {
   app._setStoreState('test', Immutable.fromJS(['new-item']));
 });
 
+test('app handles subscription and unsubscription EventEmitter lifecycle cleanly', t => {
+  const app = new App('test', [TestStore]);
+
+  sinon.spy(app, 'removeListener');
+  sinon.spy(app, 'on');
+  const cb = () => null;
+  t.plan(8);
+
+  app.subscribe(cb);
+
+  t.true(app.on.calledOnce);
+  t.is(app.on.getCall(0).args[0], 'CHANGE');
+  t.is(app.on.getCall(0).args[1], cb);
+  t.is(app.listenerCount('CHANGE'), 1);
+
+  app.unsubscribe(cb);
+
+  t.true(app.removeListener.calledOnce);
+  t.is(app.removeListener.getCall(0).args[0], 'CHANGE');
+  t.is(app.removeListener.getCall(0).args[1], cb);
+  t.is(app.listenerCount('CHANGE'), 0);
+});
+
 test('fireActionCreator calls actionCreator with expected inputs', t => {
   const app = new App('test', [
     TestStore,
@@ -79,6 +113,58 @@ test('fireActionCreator calls actionCreator with expected inputs', t => {
     t.ok(typeof dispatchAction === 'function');
     t.ok(typeof fireActionCreator === 'function');
   });
+});
+
+test('applyImmutableDiffs passes diffs through to ImmutableHistory', () => {
+  const app = new App('test', [TestStore]);
+
+  const mock = sinon.mock(app._history);
+  const diffs = [{some: 'diffs'}];
+  mock.expects('applyImmutableDiffs').once().withExactArgs(diffs);
+
+  app.applyImmutableDiffs(diffs);
+
+  mock.verify();
+});
+
+test('undo calls through to ImmutableHistory redo', t => {
+  const app = new App('test', [TestStore]);
+
+  sinon.spy(app._history, 'redo');
+  t.plan(1);
+
+  app.redo();
+  t.true(app._history.redo.calledOnce);
+});
+
+test('undo calls through to ImmutableHistory undo', t => {
+  const app = new App('test', [TestStore]);
+
+  sinon.spy(app._history, 'undo');
+  t.plan(1);
+
+  app.undo();
+  t.true(app._history.undo.calledOnce);
+});
+
+test('undo calls through to ImmutableHistory canRedo', t => {
+  const app = new App('test', [TestStore]);
+
+  sinon.spy(app._history, 'canRedo');
+  t.plan(1);
+
+  app.canRedo();
+  t.true(app._history.canRedo.calledOnce);
+});
+
+test('undo calls through to ImmutableHistory canUndo', t => {
+  const app = new App('test', [TestStore]);
+
+  sinon.spy(app._history, 'canUndo');
+  t.plan(1);
+
+  app.canUndo();
+  t.true(app._history.canUndo.calledOnce);
 });
 
 test('fireActionCreator provides actionCreator with specified store state', t => {
