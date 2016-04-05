@@ -1,6 +1,6 @@
 {
   "name": "flame",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Single-state-tree immutable Flux with Stores",
   "main": "lib/index.js",
   "files": [
@@ -55,7 +55,9 @@
     "immutable-diff": "^0.1.1",
     "invariant": "^2.2.0",
     "keymirror": "^0.1.1",
-    "loglevel": "^1.4.0",
+    "loglevel": "^1.4.0"
+  },
+  "peerDependencies": {
     "react": "^0.14.0",
     "react-dom": "^0.14.0"
   }
