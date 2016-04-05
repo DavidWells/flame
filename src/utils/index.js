@@ -1,4 +1,4 @@
-import EntityStore from './entity-store.jsx';
+import EntityStore from './entity-store';
 import Status from './status';
 
 export {

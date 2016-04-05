@@ -1,6 +1,6 @@
 import Immutable from 'immutable';
 
-import {BaseStore} from 'flame';
+import BaseStore from '../base-store';
 import Status from './status';
 
 
