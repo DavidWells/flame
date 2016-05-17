@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
 import Immutable from 'immutable';
-import ImmutableHistory from './immutable-history';
 
 import Dispatcher from './dispatcher';
 
@@ -10,7 +9,7 @@ class App extends EventEmitter {
 
     this._id = id;
     this._dispatcher = new Dispatcher();
-    this._history = new ImmutableHistory(Immutable.Map(), this._stateHasChanged.bind(this));
+    this._state = Immutable.Map();
 
     this._stores = Immutable.Map(stores.map(Store => {
       const store = new Store(
@@ -20,8 +19,6 @@ class App extends EventEmitter {
       );
       return [store.getStoreId(), store];
     }));
-
-    this._history.freeze();
   }
 
   /**
@@ -83,53 +80,19 @@ class App extends EventEmitter {
     const dispatchAction = this._dispatcher.handleAction.bind(this._dispatcher);
     const boundFireActionCreator = this.fireActionCreator.bind(this);
 
+    let ret;
     if (typeof actionCreator === 'function') {
-      return actionCreator(dispatchAction, boundFireActionCreator);
+      ret = actionCreator(dispatchAction, boundFireActionCreator);
     } else {
       const storeIds = actionCreator.storeIds;
       const state = this.getStateFromStores(storeIds);
       const func = actionCreator.actionCreator;
-      return func(dispatchAction, state, boundFireActionCreator);
+      ret = func(dispatchAction, state, boundFireActionCreator);
     }
-  }
 
-  /**
-   * @params {diffs} an Immutable.List of Immutable diffs to be applied to the app's state.
-   */
-  applyImmutableDiffs(diffs) {
-    this._history.applyImmutableDiffs(diffs);
-  }
+    this.emit('CHANGE');
 
-  /**
-   * Sets the state of the Immutable history object forward one step
-   */
-  redo() {
-    this._history.redo();
-  }
-
-  /**
-   * Sets the state of the Immutable history object back one step
-   */
-  undo() {
-    this._history.undo();
-  }
-
-  /**
-   * Checks if the store's state has history in the future to redo
-   */
-  canRedo() {
-    return this._history.canRedo();
-  }
-
-  /**
-   * Checks if the store's state has history in the past to undo
-   */
-  canUndo() {
-    return this._history.canUndo();
-  }
-
-  _stateHasChanged(diffs) {
-    this.emit('CHANGE', diffs);
+    return ret;
   }
 
   _getStoreState(id, raw = false) {
@@ -138,7 +101,7 @@ class App extends EventEmitter {
     }
 
     const store = this._stores.get(id);
-    let state = this._history.cursor.get(id);
+    let state = this._state.get(id);
     if (store.getState && !raw) {
       state = store.getState(state);
     }
@@ -146,7 +109,7 @@ class App extends EventEmitter {
   }
 
   _setStoreState(id, state) {
-    this._history.cursor.set(id, state);
+    this._state = this._state.set(id, state);
   }
 }
 

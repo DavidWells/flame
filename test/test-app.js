@@ -65,20 +65,6 @@ test('_setStoreState throws error when it lacks a store', t => {
   t.throws(() => app._getStoreState('not-in-there'));
 });
 
-test('_setStoreState calls subscribed callbacks', t => {
-  const app = new App('test', [
-    TestStore,
-  ]);
-
-  t.plan(1);
-
-  app.subscribe(() => {
-    t.pass();
-  });
-
-  app._setStoreState('test', Immutable.fromJS(['new-item']));
-});
-
 test('app handles subscription and unsubscription EventEmitter lifecycle cleanly', t => {
   const app = new App('test', [TestStore]);
 
@@ -115,58 +101,6 @@ test('fireActionCreator calls actionCreator with expected inputs', t => {
   });
 });
 
-test('applyImmutableDiffs passes diffs through to ImmutableHistory', () => {
-  const app = new App('test', [TestStore]);
-
-  const mock = sinon.mock(app._history);
-  const diffs = [{some: 'diffs'}];
-  mock.expects('applyImmutableDiffs').once().withExactArgs(diffs);
-
-  app.applyImmutableDiffs(diffs);
-
-  mock.verify();
-});
-
-test('undo calls through to ImmutableHistory redo', t => {
-  const app = new App('test', [TestStore]);
-
-  sinon.spy(app._history, 'redo');
-  t.plan(1);
-
-  app.redo();
-  t.true(app._history.redo.calledOnce);
-});
-
-test('undo calls through to ImmutableHistory undo', t => {
-  const app = new App('test', [TestStore]);
-
-  sinon.spy(app._history, 'undo');
-  t.plan(1);
-
-  app.undo();
-  t.true(app._history.undo.calledOnce);
-});
-
-test('undo calls through to ImmutableHistory canRedo', t => {
-  const app = new App('test', [TestStore]);
-
-  sinon.spy(app._history, 'canRedo');
-  t.plan(1);
-
-  app.canRedo();
-  t.true(app._history.canRedo.calledOnce);
-});
-
-test('undo calls through to ImmutableHistory canUndo', t => {
-  const app = new App('test', [TestStore]);
-
-  sinon.spy(app._history, 'canUndo');
-  t.plan(1);
-
-  app.canUndo();
-  t.true(app._history.canUndo.calledOnce);
-});
-
 test('fireActionCreator provides actionCreator with specified store state', t => {
   const app = new App('test', [
     TestStore,
@@ -183,5 +117,22 @@ test('fireActionCreator provides actionCreator with specified store state', t =>
         testState: [],
       })));
     },
+  });
+});
+
+test('fireActionCreator calls subscribed callbacks', t => {
+  const app = new App('test', [
+    TestStore,
+  ]);
+
+  t.plan(1);
+
+  app.subscribe(() => {
+    t.pass();
+  });
+
+  app.fireActionCreator({
+    storeIds: ['test'],
+    actionCreator: () => {},
   });
 });
