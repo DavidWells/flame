@@ -178,3 +178,22 @@ test('loadState', t => {
     })));
   });
 });
+
+
+test('resetState', t => {
+  t.plan(2);
+
+  const app = new App('test', [
+    TestStore,
+  ]);
+  app._setStoreState('test', Immutable.fromJS(['new-item']));
+
+  app.subscribe(() => {
+    t.pass();
+  });
+  app.resetState(['test']);
+  const appState = app.getState();
+  t.ok(Immutable.is(appState, Immutable.fromJS({
+    'testState': [],
+  })));
+});

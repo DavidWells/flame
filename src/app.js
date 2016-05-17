@@ -102,6 +102,15 @@ class App extends EventEmitter {
     return ret;
   }
 
+  resetState(storeIds) {
+    storeIds.forEach(storeId => {
+      const store = this._stores.get(storeId);
+      this._state = this._state.set(storeId, store.getInitialState());
+    });
+
+    this.emit('CHANGE');
+  }
+
   persistState() {
     if (!this._storage) {
       throw new Error('No storage provided. App should be provided with a storage object');
