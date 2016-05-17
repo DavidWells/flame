@@ -127,14 +127,26 @@ class App extends EventEmitter {
   }
 
   loadState() {
-    const data = this._storage.getItem('flame.stores');
+    let getItem = this._storage.getItem;
 
-    if (data) {
-      const immutableData = Immutable.fromJS(JSON.parse(data));
-      immutableData.map((storeData, storeId) => {
-        this._state = this._state.set(storeId, storeData);
+    if (!getItem.then) {
+      getItem = (key) => new Promise(resolve => {
+        resolve(this._storage.getItem(key));
       });
     }
+
+    return new Promise(resolve => {
+      getItem('flame.stores').then(data => {
+        if (data) {
+          const immutableData = Immutable.fromJS(JSON.parse(data));
+          immutableData.map((storeData, storeId) => {
+            this._state = this._state.set(storeId, storeData);
+          });
+        }
+
+        resolve();
+      });
+    });
   }
 
   _getStoreState(id, raw = false) {

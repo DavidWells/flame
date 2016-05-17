@@ -160,7 +160,6 @@ test('test persistState saves persisted stores', t => {
 
 test('loadState', t => {
   const storage = {
-    setItem() {},
     getItem(key) {
       t.is(key, 'flame.stores');
       return JSON.stringify({
@@ -175,16 +174,10 @@ test('loadState', t => {
     [TestStore, {persist: true}],
   ], storage);
 
-  app.persistState();
-
-  const newApp = new App('test', [
-    [TestStore, {persist: true}],
-  ], storage);
-
-  newApp.loadState();
-
-  const appState = newApp.getState();
-  t.ok(Immutable.is(appState, Immutable.fromJS({
-    'testState': [{a: 1, b: 2}],
-  })));
+  return app.loadState().then(() => {
+    const appState = app.getState();
+    t.ok(Immutable.is(appState, Immutable.fromJS({
+      'testState': [{a: 1, b: 2}],
+    })));
+  });
 });

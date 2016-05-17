@@ -36,7 +36,7 @@ const Home = React.createClass({
   },
 
   _persist() {
-    this.context.app.persistStores();
+    this.context.app.persistState();
   },
 
   render() {

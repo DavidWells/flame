@@ -13,8 +13,6 @@ const app = new App('app', [
   [TodoStore, {persist: true}],
 ], window.localStorage);
 
-app.loadStateFromStorage();
-
 // const webSocket = new WebSocket('ws://localhost:10001/');
 // const useWebsockets = querystring.parse(location.search.replace('?', '')).ws;
 // const isSlave = querystring.parse(location.search.replace('?', '')).slave;
@@ -37,9 +35,11 @@ app.loadStateFromStorage();
 //   }
 // }
 
-ReactDOM.render(
-  <Provider app={app}>
-    <Home />
-  </Provider>,
-  document.getElementById('root')
-);
+app.loadState().then(() => {
+  ReactDOM.render(
+    <Provider app={app}>
+      <Home />
+    </Provider>,
+    document.getElementById('root')
+  );
+});
