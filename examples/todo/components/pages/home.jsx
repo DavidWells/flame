@@ -35,28 +35,14 @@ const Home = React.createClass({
     );
   },
 
-  _redo() {
-    this.context.app.redo();
-  },
-
-  _undo() {
-    this.context.app.undo();
-  },
-
   render() {
     const {appState} = this.props;
     const todoState = appState.get('todoState');
-
-    const {app} = this.context;
-    const canRedo = app.canRedo();
-    const canUndo = app.canUndo();
 
     const {todoInput} = this.state;
 
     return (
       <div>
-        <button disabled={!canRedo} onClick={this._redo}>Redo</button>
-        <button disabled={!canUndo} onClick={this._undo}>Undo</button>
         <h1>Todos</h1>
         <div>
           <input
