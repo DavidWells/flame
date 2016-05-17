@@ -120,7 +120,7 @@ test('fireActionCreator provides actionCreator with specified store state', t =>
   });
 });
 
-test('fireActionCreator calls subscribed callbacks', t => {
+test('_setStoreState calls subscribed callbacks', t => {
   const app = new App('test', [
     TestStore,
   ]);
@@ -131,10 +131,7 @@ test('fireActionCreator calls subscribed callbacks', t => {
     t.pass();
   });
 
-  app.fireActionCreator({
-    storeIds: ['test'],
-    actionCreator: () => {},
-  });
+  app._setStoreState('test', Immutable.fromJS(['new-item']));
 });
 
 

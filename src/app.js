@@ -99,8 +99,6 @@ class App extends EventEmitter {
       ret = func(dispatchAction, state, boundFireActionCreator);
     }
 
-    this.emit('CHANGE');
-
     return ret;
   }
 
@@ -164,6 +162,7 @@ class App extends EventEmitter {
 
   _setStoreState(id, state) {
     this._state = this._state.set(id, state);
+    this.emit('CHANGE');
   }
 }
 
