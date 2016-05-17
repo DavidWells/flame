@@ -3,16 +3,18 @@ import BaseStore from './base-store';
 import Provider from './provider';
 import appProviderMixin from './app-provider-mixin';
 import {
-  Status,
+  Actions,
   EntityStore,
+  Status,
 } from './utils';
 
 
 export {
   App,
+  Actions,
   BaseStore,
   Provider,
   appProviderMixin,
-  Status,
   EntityStore,
+  Status,
 };

@@ -136,3 +136,55 @@ test('fireActionCreator calls subscribed callbacks', t => {
     actionCreator: () => {},
   });
 });
+
+
+test('test persistStores saves persisted stores', t => {
+  const storage = {
+    setItem(key, data) {
+      t.is(key, 'flame.stores');
+      t.is(data, JSON.stringify({
+        test: [],
+      }));
+    },
+  };
+
+  t.plan(2);
+
+  const app = new App('test', [
+    [TestStore, {persist: true}],
+  ], storage);
+
+  app.persistStores();
+});
+
+
+test('loadStateFromStorage', t => {
+  const storage = {
+    setItem() {},
+    getItem(key) {
+      t.is(key, 'flame.stores');
+      return JSON.stringify({
+        test: [{a: 1, b: 2}],
+      });
+    },
+  };
+
+  t.plan(2);
+
+  const app = new App('test', [
+    [TestStore, {persist: true}],
+  ], storage);
+
+  app.persistStores();
+
+  const newApp = new App('test', [
+    [TestStore, {persist: true}],
+  ], storage);
+
+  newApp.loadStateFromStorage();
+
+  const appState = newApp.getState();
+  t.ok(Immutable.is(appState, Immutable.fromJS({
+    'testState': [{a: 1, b: 2}],
+  })));
+});

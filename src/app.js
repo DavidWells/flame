@@ -4,18 +4,27 @@ import Immutable from 'immutable';
 import Dispatcher from './dispatcher';
 
 class App extends EventEmitter {
-  constructor(id, stores) {
+  constructor(id, stores, storage) {
     super(id, stores);
 
     this._id = id;
+    this._storage = storage;
     this._dispatcher = new Dispatcher();
     this._state = Immutable.Map();
 
-    this._stores = Immutable.Map(stores.map(Store => {
+    this._stores = Immutable.Map(stores.map(storeData => {
+      let config = {};
+      let Store = storeData;
+
+      if (Array.isArray(storeData)) {
+        [Store, config] = storeData;
+      }
+
       const store = new Store(
         this._dispatcher,
         this._getStoreState.bind(this),
-        this._setStoreState.bind(this)
+        this._setStoreState.bind(this),
+        config
       );
       return [store.getStoreId(), store];
     }));
@@ -93,6 +102,39 @@ class App extends EventEmitter {
     this.emit('CHANGE');
 
     return ret;
+  }
+
+  persistStores() {
+    if (!this._storage) {
+      throw new Error('No storage provided. App should be provided with a storage object');
+    }
+
+    const idsToPersist = this._stores.filter(
+      store => {
+        return store.config.persist;
+      }
+    ).keySeq();
+
+    if (!idsToPersist.size) {
+      return;
+    }
+
+    const data = this._state.filter(
+      (store, storeId) => idsToPersist.includes(storeId)
+    );
+
+    this._storage.setItem('flame.stores', JSON.stringify(data.toJS()));
+  }
+
+  loadStateFromStorage() {
+    const data = this._storage.getItem('flame.stores');
+
+    if (data) {
+      const immutableData = Immutable.fromJS(JSON.parse(data));
+      immutableData.map((storeData, storeId) => {
+        this._state = this._state.set(storeId, storeData);
+      });
+    }
   }
 
   _getStoreState(id, raw = false) {

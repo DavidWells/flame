@@ -35,6 +35,10 @@ const Home = React.createClass({
     );
   },
 
+  _persist() {
+    this.context.app.persistStores();
+  },
+
   render() {
     const {appState} = this.props;
     const todoState = appState.get('todoState');
@@ -43,6 +47,7 @@ const Home = React.createClass({
 
     return (
       <div>
+        <button onClick={this._persist}>Persist</button>
         <h1>Todos</h1>
         <div>
           <input

@@ -1,6 +1,4 @@
-import Immutable from 'immutable';
 import Log from 'loglevel';
-import querystring from 'querystring';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -11,7 +9,11 @@ import TodoStore from './stores/todo-store';
 
 
 Log.setLevel(Log.levels.TRACE);
-const app = new App('app', [TodoStore]);
+const app = new App('app', [
+  [TodoStore, {persist: true}],
+], window.localStorage);
+
+app.loadStateFromStorage();
 
 // const webSocket = new WebSocket('ws://localhost:10001/');
 // const useWebsockets = querystring.parse(location.search.replace('?', '')).ws;

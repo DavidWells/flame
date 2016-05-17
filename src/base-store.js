@@ -5,8 +5,10 @@ import Log from 'loglevel';
 
 
 class BaseStore extends EventEmitter {
-  constructor(dispatcher, getStoreState, setStoreState, ...args) {
+  constructor(dispatcher, getStoreState, setStoreState, config, ...args) {
     super(...args);
+
+    this.config = config;
 
     this._dispatcher = dispatcher;
     this._getStoreState = getStoreState;
