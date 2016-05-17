@@ -138,7 +138,7 @@ test('fireActionCreator calls subscribed callbacks', t => {
 });
 
 
-test('test persistStores saves persisted stores', t => {
+test('test persistState saves persisted stores', t => {
   const storage = {
     setItem(key, data) {
       t.is(key, 'flame.stores');
@@ -154,11 +154,11 @@ test('test persistStores saves persisted stores', t => {
     [TestStore, {persist: true}],
   ], storage);
 
-  app.persistStores();
+  app.persistState();
 });
 
 
-test('loadStateFromStorage', t => {
+test('loadState', t => {
   const storage = {
     setItem() {},
     getItem(key) {
@@ -175,13 +175,13 @@ test('loadStateFromStorage', t => {
     [TestStore, {persist: true}],
   ], storage);
 
-  app.persistStores();
+  app.persistState();
 
   const newApp = new App('test', [
     [TestStore, {persist: true}],
   ], storage);
 
-  newApp.loadStateFromStorage();
+  newApp.loadState();
 
   const appState = newApp.getState();
   t.ok(Immutable.is(appState, Immutable.fromJS({

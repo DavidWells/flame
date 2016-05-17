@@ -104,7 +104,7 @@ class App extends EventEmitter {
     return ret;
   }
 
-  persistStores() {
+  persistState() {
     if (!this._storage) {
       throw new Error('No storage provided. App should be provided with a storage object');
     }
@@ -126,7 +126,7 @@ class App extends EventEmitter {
     this._storage.setItem('flame.stores', JSON.stringify(data.toJS()));
   }
 
-  loadStateFromStorage() {
+  loadState() {
     const data = this._storage.getItem('flame.stores');
 
     if (data) {
