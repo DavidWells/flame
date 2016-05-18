@@ -1,11 +1,16 @@
 import { EventEmitter } from 'events';
 import Immutable from 'immutable';
+import debounce from 'lodash.debounce';
 
 import Dispatcher from './dispatcher';
 
 class App extends EventEmitter {
   constructor(id, stores, storage) {
     super(id, stores);
+    this.persistState = debounce(this.persistState, 200, {
+      'leading': true,
+      'trailing': false,
+    });
 
     this._id = id;
     this._storage = storage;
@@ -172,6 +177,15 @@ class App extends EventEmitter {
   _setStoreState(id, state) {
     this._state = this._state.set(id, state);
     this.emit('CHANGE');
+
+    if (this._stores) {
+      const store = this._stores.get(id);
+      const persistStore = store.config.persist;
+      const autoPersist = (store.config.autoPersist || store.config.autoPersist === undefined);
+      if (persistStore && autoPersist) {
+        this.persistState();
+      }
+    }
   }
 }
 

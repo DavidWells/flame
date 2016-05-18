@@ -154,6 +154,25 @@ test('test persistState saves persisted stores', t => {
   app.persistState();
 });
 
+test('_setStoreState auto persists stores', t => {
+  const storage = {
+    setItem(key, data) {
+      t.is(key, 'flame.stores');
+      t.is(data, JSON.stringify({
+        test: ['new-item'],
+      }));
+    },
+  };
+
+  const app = new App('test', [
+    [TestStore, {persist: true}],
+  ], storage);
+
+  t.plan(2);
+
+  app._setStoreState('test', Immutable.fromJS(['new-item']));
+});
+
 
 test('loadState', t => {
   const storage = {
