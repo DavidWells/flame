@@ -154,10 +154,9 @@ class App extends EventEmitter {
           immutableData.map((storeData, storeId) => {
             this._state = this._state.set(storeId, storeData);
           });
-
-          this.emit('CHANGE');
         }
 
+        this.emit('CHANGE');
         resolve();
       });
     });
