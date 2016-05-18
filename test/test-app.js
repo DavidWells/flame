@@ -184,11 +184,15 @@ test('loadState', t => {
     },
   };
 
-  t.plan(2);
+  t.plan(3);
 
   const app = new App('test', [
     [TestStore, {persist: true}],
   ], storage);
+
+  app.subscribe(() => {
+    t.pass();
+  });
 
   return app.loadState().then(() => {
     const appState = app.getState();
