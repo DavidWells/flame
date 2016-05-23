@@ -93,30 +93,14 @@ test('fireActionCreator calls actionCreator with expected inputs', t => {
     TestStore,
   ]);
 
-  t.plan(2);
-
-  app.fireActionCreator((dispatchAction, fireActionCreator) => {
-    t.ok(typeof dispatchAction === 'function');
-    t.ok(typeof fireActionCreator === 'function');
-  });
-});
-
-test('fireActionCreator provides actionCreator with specified store state', t => {
-  const app = new App('test', [
-    TestStore,
-  ]);
-
   t.plan(3);
 
-  app.fireActionCreator({
-    storeIds: ['test'],
-    actionCreator: (dispatchAction, state, fireActionCreator) => {
-      t.ok(typeof dispatchAction === 'function');
-      t.ok(typeof fireActionCreator === 'function');
-      t.ok(Immutable.is(state, Immutable.fromJS({
-        testState: [],
-      })));
-    },
+  app.fireActionCreator((dispatchAction, fireActionCreator, state) => {
+    t.ok(typeof dispatchAction === 'function');
+    t.ok(typeof fireActionCreator === 'function');
+    t.ok(Immutable.is(state, Immutable.fromJS({
+      testState: [],
+    })));
   });
 });
 

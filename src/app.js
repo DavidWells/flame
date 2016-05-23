@@ -94,17 +94,7 @@ class App extends EventEmitter {
     const dispatchAction = this._dispatcher.handleAction.bind(this._dispatcher);
     const boundFireActionCreator = this.fireActionCreator.bind(this);
 
-    let ret;
-    if (typeof actionCreator === 'function') {
-      ret = actionCreator(dispatchAction, boundFireActionCreator);
-    } else {
-      const storeIds = actionCreator.storeIds;
-      const state = this.getStateFromStores(storeIds);
-      const func = actionCreator.actionCreator;
-      ret = func(dispatchAction, state, boundFireActionCreator);
-    }
-
-    return ret;
+    return actionCreator(dispatchAction, boundFireActionCreator, this.getState());
   }
 
   resetState(storeIds) {
