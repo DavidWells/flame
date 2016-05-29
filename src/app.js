@@ -5,7 +5,7 @@ import debounce from 'lodash.debounce';
 import Dispatcher from './dispatcher';
 
 class App extends EventEmitter {
-  constructor(id, stores, storage) {
+  constructor({id, stores, storage, middleware}) {
     super(id, stores);
     this.persistState = debounce(this.persistState, 200, {
       'leading': true,
@@ -14,6 +14,7 @@ class App extends EventEmitter {
 
     this._id = id;
     this._storage = storage;
+    this._middleware = middleware || [];
     this._dispatcher = new Dispatcher();
     this._state = Immutable.Map();
 
@@ -83,18 +84,25 @@ class App extends EventEmitter {
     }));
   }
 
+  _dispatchAction(action) {
+    this._middleware.forEach(middleware => middleware(action, this.getState()));
+    this._dispatcher.handleAction.bind(this._dispatcher)(action);
+  }
+
   /**
    * Fire's a given action creator, providing that action creator
    * with a a function to actually dispatch the action, the current state of the app,
    * and a reference to this function to call additional action creators.
    *
-   * @params {actionCreator} the action creator to call.
+   * @params {actionCreator} an object to dispatch or an action creator to call.
    */
-  fireActionCreator(actionCreator) {
-    const dispatchAction = this._dispatcher.handleAction.bind(this._dispatcher);
-    const boundFireActionCreator = this.fireActionCreator.bind(this);
+  dispatch(actionCreator) {
+    if (typeof(actionCreator) === 'object') {
+      return this._dispatchAction(actionCreator);
+    }
 
-    return actionCreator(dispatchAction, boundFireActionCreator, this.getState());
+    const boundDispatch = this.dispatch.bind(this);
+    return actionCreator(boundDispatch, this.getState());
   }
 
   resetState(storeIds) {

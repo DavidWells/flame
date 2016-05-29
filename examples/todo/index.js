@@ -4,36 +4,20 @@ import ReactDOM from 'react-dom';
 
 import {App, Provider} from 'flame';
 
+import log from './middleware/log';
 import Home from './components/pages/home.jsx';
 import TodoStore from './stores/todo-store';
 
-
 Log.setLevel(Log.levels.TRACE);
-const app = new App('app', [
-  [TodoStore, {persist: true}],
-], window.localStorage);
 
-// const webSocket = new WebSocket('ws://localhost:10001/');
-// const useWebsockets = querystring.parse(location.search.replace('?', '')).ws;
-// const isSlave = querystring.parse(location.search.replace('?', '')).slave;
-
-// if (useWebsockets) {
-//   if (isSlave) {
-//     Log.debug('WS: App is listening...');
-//     webSocket.onmessage = (event) => {
-//       Log.debug('WS: Receiving state changes...');
-//       const diffs = JSON.parse(event.data);
-//       app.applyImmutableDiffs(Immutable.fromJS(diffs));
-//     };
-//   } else {
-//     Log.debug('WS: App is master...');
-//     app.subscribe((diffs) => {
-//       Log.debug('WS: Sending state changes...');
-//       const data = JSON.stringify(diffs);
-//       webSocket.send(data);
-//     });
-//   }
-// }
+const app = new App({
+  id: 'app',
+  middleware: [log],
+  stores: [
+    [TodoStore, {persist: true}],
+  ],
+  storage: window.localStorage,
+});
 
 app.loadState().then(() => {
   ReactDOM.render(

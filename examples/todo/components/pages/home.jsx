@@ -30,7 +30,7 @@ const Home = React.createClass({
   _handleOnClick() {
     const {todoInput} = this.state;
 
-    this.context.app.fireActionCreator(
+    this.context.app.dispatch(
       TodoActions.newTodo(todoInput)
     );
   },

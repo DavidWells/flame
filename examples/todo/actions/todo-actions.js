@@ -2,17 +2,15 @@ import actionTypes from '../constants/action-types';
 
 const TodoActions = {
   newTodo(todo) {
-    return (dispatchAction) => {
-      dispatchAction({
-        actionType: actionTypes.ADD_TODO,
-        todo,
-      });
+    return {
+      actionType: actionTypes.ADD_TODO,
+      todo,
     };
   },
 
   deleteTodo(id) {
-    return (dispatchAction) => {
-      dispatchAction({
+    return (dispatch) => {
+      dispatch({
         actionType: actionTypes.DELETE_TODO,
         id,
       });
@@ -20,12 +18,10 @@ const TodoActions = {
   },
 
   editTodo(id, todo) {
-    return (dispatchAction) => {
-      dispatchAction({
-        actionType: actionTypes.DELETE_TODO,
-        id,
-        todo,
-      });
+    return {
+      actionType: actionTypes.DELETE_TODO,
+      id,
+      todo,
     };
   },
 };

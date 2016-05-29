@@ -11,10 +11,13 @@ import TestTwoStore from './helpers/test-two-store';
 
 
 test('app instantiates with default state', t => {
-  const app = new App('test', [
-    TestStore,
-    TestTwoStore,
-  ]);
+  const app = new App({
+    id: 'test',
+    stores: [
+      TestStore,
+      TestTwoStore,
+    ],
+  });
 
   const appState = app.getState();
   t.ok(Immutable.is(appState, Immutable.fromJS({
@@ -24,10 +27,13 @@ test('app instantiates with default state', t => {
 });
 
 test('getStateFromStores returns only requested state', t => {
-  const app = new App('test', [
-    TestStore,
-    TestTwoStore,
-  ]);
+  const app = new App({
+    id: 'test',
+    stores: [
+      TestStore,
+      TestTwoStore,
+    ],
+  });
 
   const state = app.getStateFromStores(['test']);
 
@@ -37,9 +43,10 @@ test('getStateFromStores returns only requested state', t => {
 });
 
 test('getStateFromStores errors on unknown store', t => {
-  const app = new App('test', [
-    TestStore,
-  ]);
+  const app = new App({
+    id: 'test',
+    stores: [TestStore],
+  });
 
   t.throws(() => {
     app.getStateFromStores(['non-existent']);
@@ -47,9 +54,10 @@ test('getStateFromStores errors on unknown store', t => {
 });
 
 test('_setStoreState sets state', t => {
-  const app = new App('test', [
-    TestStore,
-  ]);
+  const app = new App({
+    id: 'test',
+    stores: [TestStore],
+  });
 
   app._setStoreState('test', Immutable.fromJS(['new-item']));
   const storeState = app._getStoreState('test');
@@ -57,7 +65,10 @@ test('_setStoreState sets state', t => {
 });
 
 test('_setStoreState throws error when it lacks a store', t => {
-  const app = new App('test', [TestStore]);
+  const app = new App({
+    id: 'test',
+    stores: [TestStore],
+  });
 
   t.plan(1);
 
@@ -66,7 +77,10 @@ test('_setStoreState throws error when it lacks a store', t => {
 });
 
 test('app handles subscription and unsubscription EventEmitter lifecycle cleanly', t => {
-  const app = new App('test', [TestStore]);
+  const app = new App({
+    id: 'test',
+    stores: [TestStore],
+  });
 
   sinon.spy(app, 'removeListener');
   sinon.spy(app, 'on');
@@ -88,26 +102,70 @@ test('app handles subscription and unsubscription EventEmitter lifecycle cleanly
   t.is(app.listenerCount('CHANGE'), 0);
 });
 
-test('fireActionCreator calls actionCreator with expected inputs', t => {
-  const app = new App('test', [
-    TestStore,
-  ]);
+test('dispatch dispatches object', t => {
+  const app = new App({
+    id: 'test',
+    stores: [TestStore],
+  });
 
-  t.plan(3);
+  app._dispatcher.handleAction = action => {
+    t.ok(action.actionType === 'test');
+    t.ok(action.data === 'someData');
+  };
 
-  app.fireActionCreator((dispatchAction, fireActionCreator, state) => {
-    t.ok(typeof dispatchAction === 'function');
-    t.ok(typeof fireActionCreator === 'function');
+  t.plan(2);
+
+  app.dispatch({
+    actionType: 'test',
+    data: 'someData',
+  });
+});
+
+test('dispatch calls actionCreator with expected inputs', t => {
+  const app = new App({
+    id: 'test',
+    stores: [TestStore],
+  });
+
+  t.plan(2);
+
+  app.dispatch((dispatch, state) => {
+    t.ok(typeof dispatch === 'function');
     t.ok(Immutable.is(state, Immutable.fromJS({
       testState: [],
     })));
   });
 });
 
+test('middleware called during dispatch', t => {
+  t.plan(3);
+
+  const testMiddleware = (action, state) => {
+    t.ok(action.actionType === 'test');
+    t.ok(action.data === 'someData');
+    t.ok(Immutable.is(state, Immutable.fromJS({
+      testState: [],
+    })));
+  };
+
+  const app = new App({
+    id: 'test',
+    stores: [TestStore],
+    middleware: [testMiddleware],
+  });
+
+  app.dispatch({
+    actionType: 'test',
+    data: 'someData',
+  });
+});
+
+
 test('_setStoreState calls subscribed callbacks', t => {
-  const app = new App('test', [
-    TestStore,
-  ]);
+  const app = new App({
+    id: 'test',
+    stores: [TestStore],
+  });
 
   t.plan(1);
 
@@ -131,9 +189,13 @@ test('test persistState saves persisted stores', t => {
 
   t.plan(2);
 
-  const app = new App('test', [
-    [TestStore, {persist: true}],
-  ], storage);
+  const app = new App({
+    id: 'test',
+    stores: [
+      [TestStore, {persist: true}],
+    ],
+    storage,
+  });
 
   app.persistState();
 });
@@ -148,9 +210,13 @@ test('_setStoreState auto persists stores', t => {
     },
   };
 
-  const app = new App('test', [
-    [TestStore, {persist: true}],
-  ], storage);
+  const app = new App({
+    id: 'test',
+    stores: [
+      [TestStore, {persist: true}],
+    ],
+    storage,
+  });
 
   t.plan(2);
 
@@ -170,9 +236,13 @@ test('loadState', t => {
 
   t.plan(3);
 
-  const app = new App('test', [
-    [TestStore, {persist: true}],
-  ], storage);
+  const app = new App({
+    id: 'test',
+    stores: [
+      [TestStore, {persist: true}],
+    ],
+    storage,
+  });
 
   app.subscribe(() => {
     t.pass();
@@ -190,9 +260,10 @@ test('loadState', t => {
 test('resetState', t => {
   t.plan(2);
 
-  const app = new App('test', [
-    TestStore,
-  ]);
+  const app = new App({
+    id: 'test',
+    stores: [TestStore],
+  });
   app._setStoreState('test', Immutable.fromJS(['new-item']));
 
   app.subscribe(() => {

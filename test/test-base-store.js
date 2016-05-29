@@ -8,9 +8,12 @@ import TestStore from './helpers/test-store';
 
 
 test('sets initial state on instantiation', t => {
-  const app = new App('test', [
-    TestStore,
-  ]);
+  const app = new App({
+    id: 'test',
+    stores: [
+      TestStore,
+    ],
+  });
 
   const storeState = app._getStoreState('test');
   t.ok(Immutable.is(storeState, Immutable.fromJS([])));
@@ -27,9 +30,12 @@ test('sets handlers on instantiation', t => {
     };
   };
 
-  const app = new App('test', [
-    TestStore,
-  ]);
+  const app = new App({
+    id: 'test',
+    stores: [
+      TestStore,
+    ],
+  });
 
   t.ok(Immutable.is(app._stores.get('test')._handlers, Immutable.fromJS({
     actionType: handler,
@@ -55,9 +61,12 @@ test('modifies state after handling action', t => {
     };
   };
 
-  const app = new App('test', [
-    TestStore,
-  ]);
+  const app = new App({
+    id: 'test',
+    stores: [
+      TestStore,
+    ],
+  });
 
   const storeInstance = app._stores.get('test');
   storeInstance._handle(actionToSend);

@@ -16,7 +16,7 @@ const TodoItem = React.createClass({
   _handleDelete() {
     const id = this.props.todoItemState.get('id');
 
-    this.context.app.fireActionCreator(
+    this.context.app.dispatch(
       TodoActions.deleteTodo(id)
     );
   },

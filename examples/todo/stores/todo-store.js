@@ -26,14 +26,14 @@ class TodoStore extends BaseStore {
   _handleAddTodo(action, state) {
     const id = state.size + 1;
 
-    return state.set(id, Immutable.fromJS({
+    return state.set(id.toString(), Immutable.fromJS({
       id: id,
       todo: action.todo,
     }));
   }
 
   _handleDeleteTodo(action, state) {
-    return state.delete(action.id);
+    return state.delete(action.id.toString());
   }
 }
 
