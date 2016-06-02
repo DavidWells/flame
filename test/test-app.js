@@ -200,6 +200,36 @@ test('test persistState saves persisted stores', t => {
   app.persistState();
 });
 
+test('test persistState calls store getDataToPersist', t => {
+  const storage = {
+    setItem(key, data) {
+      t.is(key, 'flame.stores');
+      t.is(data, JSON.stringify({
+        test: ['persisted!'],
+      }));
+    },
+  };
+
+  t.plan(3);
+
+  TestStore.prototype.getDataToPersist = (state) => {
+    t.pass();
+    return state.set(0, 'persisted!');
+  };
+
+  const app = new App({
+    id: 'test',
+    stores: [
+      [TestStore, {persist: true}],
+    ],
+    storage,
+  });
+
+  app.persistState();
+
+  TestStore.prototype.getDataToPersist = null;
+});
+
 test('_setStoreState auto persists stores', t => {
   const storage = {
     setItem(key, data) {

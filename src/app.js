@@ -89,6 +89,17 @@ class App extends EventEmitter {
     this._dispatcher.handleAction.bind(this._dispatcher)(action);
   }
 
+  _reduceDataToPersist(data, storeIdsToPersist) {
+    return data.reduce((prevData, value, key) => {
+      if (storeIdsToPersist.includes(key)) {
+        const store = this._stores.get(key);
+        return store.getDataToPersist ? prevData.set(key, store.getDataToPersist(value)) : prevData;
+      }
+
+      return prevData;
+    }, data);
+  }
+
   /**
    * Fire's a given action creator, providing that action creator
    * with a a function to actually dispatch the action, the current state of the app,
@@ -129,9 +140,10 @@ class App extends EventEmitter {
       return;
     }
 
-    const data = this._state.filter(
+    let data = this._state.filter(
       (store, storeId) => idsToPersist.includes(storeId)
     );
+    data = this._reduceDataToPersist(data, idsToPersist);
 
     this._storage.setItem('flame.stores', JSON.stringify(data.toJS()));
   }
