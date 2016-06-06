@@ -56,10 +56,12 @@
     "invariant": "^2.2.0",
     "keymirror": "^0.1.1",
     "lodash.debounce": "^4.0.6",
-    "loglevel": "^1.4.0"
+    "loglevel": "^1.4.0",
+    "react": "15.1.0",
+    "react-dom": "15.1.0"
   },
   "peerDependencies": {
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0"
+    "react": "^15.0.2",
+    "react-dom": "^15.0.2"
   }
 }
