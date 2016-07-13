@@ -1,3 +1,3 @@
-export default (action, state) => {
+export default (action, app) => {
   console.info('ACTION FROM MIDDLEWARE: ', action);
 };

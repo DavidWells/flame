@@ -85,7 +85,7 @@ class App extends EventEmitter {
   }
 
   _dispatchAction(action) {
-    this._middleware.forEach(middleware => middleware(action, this.getState()));
+    this._middleware.forEach(middleware => middleware(action, this));
     this._dispatcher.handleAction.bind(this._dispatcher)(action);
   }
 

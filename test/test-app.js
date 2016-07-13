@@ -140,15 +140,15 @@ test('dispatch calls actionCreator with expected inputs', t => {
 test('middleware called during dispatch', t => {
   t.plan(3);
 
-  const testMiddleware = (action, state) => {
+  let app = null;
+
+  const testMiddleware = (action, appRef) => {
     t.ok(action.actionType === 'test');
     t.ok(action.data === 'someData');
-    t.ok(Immutable.is(state, Immutable.fromJS({
-      testState: [],
-    })));
+    t.ok(app === appRef);
   };
 
-  const app = new App({
+  app = new App({
     id: 'test',
     stores: [TestStore],
     middleware: [testMiddleware],
